@@ -26,8 +26,9 @@ import com.patrykandpatrick.vico.core.dimensions.MutableDimensions
 import com.patrykandpatrick.vico.core.dimensions.emptyDimensions
 import com.patrykandpatrick.vico.core.extension.half
 import com.patrykandpatrick.vico.core.legend.VerticalLegend.Item
+
 /**
- * [HorizontalLegend] displays legend items in a auto-warped horizontal row.
+ * [HorizontalLegend] displays legend items in a line wrapping horizontal row.
  *
  * @param items a [Collection] of [Item]s to be displayed by this [HorizontalLegend].
  * @param iconSizeDp defines the size of all [Item.icon]s.
@@ -54,7 +55,10 @@ public open class HorizontalLegend(
         if (items.isEmpty()) return@with 0f
         lines.clear()
         lines.add(mutableListOf())
-        var height = (padding.verticalDp +lineSpacingDp).pixels + maxOf(items.first().getHeight(context, availableWidth), iconSizeDp.pixels)
+        var height = (padding.verticalDp + lineSpacingDp).pixels + maxOf(
+            items.first().getHeight(context, availableWidth),
+            iconSizeDp.pixels,
+        )
         var remainWidth = availableWidth
         var currentLine = 0
         heights.add(height)
@@ -81,7 +85,7 @@ public open class HorizontalLegend(
 
     override fun draw(context: ChartDrawContext): Unit = with(context) {
         var currentTop = bounds.top + padding.topDp.pixels
-        // isLtr: startX means the line starts at X from left or it starts at X from right
+        // isLtr? startX means the line starts at X from left : it starts at X from right
         val startX = if (isLtr) {
             chartBounds.left + padding.startDp.pixels
         } else {
@@ -111,12 +115,12 @@ public open class HorizontalLegend(
             val currentLineHeight = heights.getOrElse(index) { item.first().getHeight(context, availableWidth) }
             val centerY = currentTop + currentLineHeight.half
 
-            item.forEach {it ->
+            item.forEach { it ->
                 it.icon.draw(
                     context = context,
                     left = startX + currentStart,
                     top = centerY - iconSizeDp.half.pixels,
-                    right = startX + iconSizeDp.pixels +currentStart,
+                    right = startX + iconSizeDp.pixels + currentStart,
                     bottom = centerY + iconSizeDp.half.pixels,
                 )
                 currentStart += if (isLtr) {
@@ -127,7 +131,7 @@ public open class HorizontalLegend(
                 it.label.drawText(
                     context = context,
                     text = it.labelText,
-                    textX = startX + currentStart ,
+                    textX = startX + currentStart,
                     textY = centerY,
                     horizontalPosition = HorizontalPosition.End,
                     verticalPosition = VerticalPosition.Center,
@@ -171,7 +175,7 @@ public open class HorizontalLegend(
         context: MeasureContext,
         availableWidth: Float,
     ): Float = with(context) {
-        this@getOriginalWidth.getOriginalLabelWidth(context, availableWidth) + iconSizeDp.pixels + iconPaddingDp.pixels
+        this@getOriginalWidth.getOriginalLabelWidth(context, availableWidth) + (iconSizeDp + iconPaddingDp).pixels
     }
 
 }
